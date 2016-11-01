@@ -16,7 +16,7 @@ try:
 except ImportError:
     from urllib import unquote
 
-__version__ = "1.0.8"
+__version__ = "1.0.9"
 
 
 def listdir(directory):
@@ -121,12 +121,26 @@ class Client(object):
         self.webdav = WebDAVSettings(webdav_options)
         self.proxy = ProxySettings(proxy_options)
 
-        pycurl.global_init(pycurl.GLOBAL_DEFAULT)
+        # ver __del__
+        # se inicializa automaticamente la primera vez que usa libcurl
+        # ver https://curl.haxx.se/libcurl/c/libcurl.html#GLOBAL 
+        #pycurl.global_init(pycurl.GLOBAL_DEFAULT)
 
         self.default_options = {}
 
     def __del__(self):
-        pycurl.global_cleanup()
+        # Comento cleanup porque me trae problemas con la libreria gcloud de google
+        # Tira exception ssl.SSLError: ('failed to allocate SSL context',) cuando create un 
+        # nuevo context
+        #    ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        #  File "/usr/lib/python2.7/ssl.py", line 411, in create_default_context
+        #    context = SSLContext(PROTOCOL_SSLv23)
+        #  File "/usr/lib/python2.7/ssl.py", line 337, in __new__
+        #    self = _SSLContext.__new__(cls, protocol)
+        # ssl.SSLError: ('failed to allocate SSL context',)
+
+        #pycurl.global_cleanup()
+        pass
 
     def valid(self):
         return True if self.webdav.valid() and self.proxy.valid() else False
@@ -381,9 +395,6 @@ class Client(object):
 
         try:
             urn = Urn(remote_path)
-
-            if self.is_dir(urn.path()):
-                raise OptionNotValid(name="remote_path", value=remote_path)
 
             if os.path.isdir(local_path):
                 raise OptionNotValid(name="local_path", value=local_path)
