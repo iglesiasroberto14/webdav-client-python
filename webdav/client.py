@@ -16,7 +16,7 @@ try:
 except ImportError:
     from urllib import unquote
 
-__version__ = "1.0.9"
+__version__ = "1.0.10-carlos"
 
 
 def listdir(directory):
@@ -39,7 +39,7 @@ def add_options(request, options):
             request.setopt(pycurl.__dict__[key], value)
         except TypeError:
             raise OptionNotValid(key, value)
-        except pycurl.error:
+        except pycurl.error as e:
             raise OptionNotValid(key, value)
 
 
@@ -186,6 +186,9 @@ class Client(object):
 
         if self.webdav.verbose:
             self.default_options['VERBOSE'] = self.webdav.verbose
+
+        if self.webdav.conn_timeout:
+            self.default_options['CONNECTTIMEOUT_MS'] = self.webdav.conn_timeout
         
         if self.default_options:
             add_options(curl, self.default_options)
@@ -235,8 +238,8 @@ class Client(object):
             path = "{root}{path}".format(root=self.webdav.root, path=directory_urn.path())
             return [urn.filename() for urn in urns if urn.path() != path and urn.path() != path[:-1]]
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def free(self):
 
@@ -284,8 +287,8 @@ class Client(object):
 
             return parse(response)
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def check(self, remote_path=root):
 
@@ -313,8 +316,8 @@ class Client(object):
         
             return False
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def mkdir(self, remote_path):
 
@@ -336,8 +339,8 @@ class Client(object):
             request.perform()
             request.close()
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def download_to(self, buff, remote_path):
 
@@ -363,8 +366,8 @@ class Client(object):
             request.perform()
             request.close()
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def download(self, remote_path, local_path, progress=None):
 
@@ -421,8 +424,8 @@ class Client(object):
                 request.perform()
                 request.close()
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def download_sync(self, remote_path, local_path, callback=None):
 
@@ -464,8 +467,8 @@ class Client(object):
 
             request.close()
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def upload(self, remote_path, local_path, progress=None):
 
@@ -543,8 +546,8 @@ class Client(object):
 
                 request.close()
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def upload_sync(self, remote_path, local_path, callback=None):
 
@@ -594,8 +597,8 @@ class Client(object):
             request.perform()
             request.close()
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def move(self, remote_path_from, remote_path_to):
 
@@ -631,8 +634,8 @@ class Client(object):
             request.perform()
             request.close()
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def clean(self, remote_path):
 
@@ -651,8 +654,8 @@ class Client(object):
             request.perform()
             request.close()
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def publish(self, remote_path):
 
@@ -709,8 +712,8 @@ class Client(object):
 
             return parse(response)
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def unpublish(self, remote_path):
 
@@ -747,8 +750,8 @@ class Client(object):
             request.perform()
             request.close()
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def info(self, remote_path):
 
@@ -813,8 +816,8 @@ class Client(object):
 
             return parse(response, path)
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def is_dir(self, remote_path):
 
@@ -875,8 +878,8 @@ class Client(object):
 
             return parse(response, path)
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def resource(self, remote_path):
 
@@ -929,8 +932,8 @@ class Client(object):
 
             return parse(response, option)
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def set_property(self, remote_path, option):
 
@@ -969,8 +972,8 @@ class Client(object):
             request.perform()
             request.close()
 
-        except pycurl.error:
-            raise NotConnection(self.webdav.hostname)
+        except pycurl.error as e:
+            raise NotConnection(self.webdav.hostname+" : "+repr(e))
 
     def push(self, remote_directory, local_directory):
 

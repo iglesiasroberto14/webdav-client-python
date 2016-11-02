@@ -1,5 +1,8 @@
 class WebDavException(Exception):
-    pass
+    def __str__(self):
+        return "WebDavException"
+    def __repr__(self):
+        return self.__str__()
 
 
 class NotValid(WebDavException):
