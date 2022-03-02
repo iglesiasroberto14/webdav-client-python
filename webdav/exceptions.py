@@ -74,3 +74,17 @@ class NotEnoughSpace(WebDavException):
 
     def __str__(self):
         return "Not enough space on the server"
+        
+class InternalServerError(WebDavException):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return "Internal Server Error: Permission Problem?"
+
+class UnhandledError(WebDavException):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return "Unhandled Error"

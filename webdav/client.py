@@ -461,8 +461,8 @@ class Client(object):
             request = self.Request(options=options)
 
             request.perform()
-            code = request.getinfo(pycurl.HTTP_CODE)
-            if code == "507":
+            code = int(request.getinfo(pycurl.HTTP_CODE))
+            if code == 507:
                 raise NotEnoughSpace()
 
             request.close()
@@ -540,9 +540,13 @@ class Client(object):
                 request = self.Request(options=options)
 
                 request.perform()
-                code = request.getinfo(pycurl.HTTP_CODE)
-                if code == "507":
+                code = int(request.getinfo(pycurl.HTTP_CODE))
+                if code == 507:
                     raise NotEnoughSpace()
+                if code == 500:
+                    raise InternalServerError()
+                if code < 200 or code >=400:
+                    raise UnhandledError()
 
                 request.close()
 
